@@ -3,63 +3,35 @@
  * Return: 0 (Success)
  */
 
-#include <stdio.h>
-#include <sys/wait.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
+#include "shell.h"
 
-#define MAXIMUM_ARGS 10
-#define MAXIMUM_LINE_LEN 80
-
-int main(void)
+int main(int ac, char **argv)
 {
-	char currentLine[MAXIMUM_LINE_LEN];
+	char *linePointer;
 
-	char *arguments[MAXIMUM_ARGS];
+	size_t n = 0;
+	ssize_t noOfChars_read;
+
+
+	(void)ac;
+
+	(void) argv;
 
 	while (1)
 	{
-		printf("please enter a command: ");
-		fgets(currentLine, MAXIMUM_LINE_LEN, stdin);
 
-		int i = 0;
+		printf("shell $ ");
+		noOfChars_read = getline(&linePointer, &n, stdin);
 
-		arguments[i] = strtok(currentLine, "\n");
-		while (arguments[i] != NULL)
+		if (noOfChars_read == -1)
 		{
-			i++;
-			arguments[i] = strtok(NULL, "\n");
-		}
-		arguments[i] = NULL;
-
-		if (strcmp(arguments[0], "cd") == 0)
-		{
-			chdir(arguments[1]);
-			continue;
-		}
-		else if (strcmp(arguments[0], "exit") == 0)
-		{
-			exit(0);
+			printf("Leaving the shell..");
+			return (-1);
 		}
 
-		pid_t pid = fork();
+		printf("%s\n", linePointer);
 
-		if (pid < 0)
-		{
-			perror("could not fork.");
-		}
-		else if (pid == 0)
-		{
-			execvp(arguments[0], args);
-			perror("exec could not create");
-			exit(1);
-		}
-		else
-		{
-			waitpid(pid, &status, 0);
-		}
+		free(linePointer);
 	}
 	return (0);
 }
-
